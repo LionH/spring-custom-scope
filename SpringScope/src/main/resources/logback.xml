@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- configuration file for LogBack (slf4J implementation)
+See here for more details: http://gordondickens.com/wordpress/2013/03/27/sawing-through-the-java-loggers/ -->
+<configuration scan="true" scanPeriod="30 seconds">
+
+    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+        <resetJUL>true</resetJUL>
+    </contextListener>
+
+    <!-- To enable JMX Management -->
+    <jmxConfigurator/>
+
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%-5level %logger{0} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+	<!--<logger name="org.hibernate" level="debug"/> -->
+   <!-- Uncomment and add your logger here:
+    <logger name="org.springframework.samples.service.service" level="debug"/> -->
+    
+    <logger name="org.springframework" level="debug" />
+    <logger name="java" level="debug" />
+    <logger name="org.tesolin" level="debug" />
+         
+    <root level="debug">
+        <appender-ref ref="console"/>
+    </root>
+</configuration>
