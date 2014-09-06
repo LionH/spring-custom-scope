@@ -1,7 +1,0 @@
-<web-app xmlns='http://caucho.com/ns/resin'>
-  <class-loader>
-    <compiling-loader path='C:\sts\workspace\SpringScope\target\classes'/>
-    <compiling-loader path='C:\sts\workspace\SpringScope\target\test-classes'/>
-    <library-loader path='WEB-INF/lib'/>
-  </class-loader>
-</web-app>

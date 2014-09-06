@@ -13,31 +13,32 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @Aspect
 public class ConversationScopedAdvice {
-    
-    private final Logger log = LoggerFactory.getLogger(ConversationScopedAdvice.class);
-    
-    @Autowired
-    private ConversationScope conversationScope;
-    
-//    @Around("execution(public * *(..)) && @annotation(ConversationScoped)")
-//    public Object aroundConversation(MethodInvocation invocation) throws Throwable {
-//        log.debug("Ending conversation");
-////        conversationScope.registerConversation();
-//        Object ret = invocation.proceed();
-////        conversationScope.endConversation();
-//        return ret;
-//    }
-    
-    @Before("@annotation(ConversationTransaction)")
-    public void beforeConversation() throws Throwable {
-        log.debug("Begining conversation");
-        String uuid = UUID.randomUUID().toString();
-        conversationScope.registerConversation(uuid);
-    }
-    
-    @After("@annotation(ConversationTransaction)")
-    public void afterConversation() throws Throwable {
-        log.debug("Ending conversation");
-        conversationScope.endConversation();
-    }
+
+	private final Logger log = LoggerFactory
+			.getLogger(ConversationScopedAdvice.class);
+
+	@Autowired
+	private ConversationScope conversationScope;
+
+	// @Around("execution(public * *(..)) && @annotation(ConversationScoped)")
+	// public Object aroundConversation(MethodInvocation invocation) throws
+	// Throwable {
+	// log.debug("Ending conversation");
+	// // conversationScope.registerConversation();
+	// Object ret = invocation.proceed();
+	// // conversationScope.endConversation();
+	// return ret;
+	// }
+
+	@Before("@annotation(ConversationTransaction)")
+	public void beforeConversation() throws Throwable {
+		String uuid = UUID.randomUUID().toString();
+		log.debug("Begining conversation {}", uuid);
+		conversationScope.registerConversation(uuid);
+	}
+
+	@After("@annotation(ConversationTransaction)")
+	public void afterConversation() throws Throwable {
+		log.debug("Ending conversation {}", conversationScope.endConversation());
+	}
 }

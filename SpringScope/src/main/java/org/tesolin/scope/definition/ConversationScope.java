@@ -16,33 +16,33 @@ import org.springframework.beans.factory.config.Scope;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ConversationScope implements Scope{
-	
-	private final Logger logger = LoggerFactory.getLogger(ConversationScope.class);
-	
+public class ConversationScope implements Scope {
+
+	private final Logger logger = LoggerFactory
+			.getLogger(ConversationScope.class);
+
 	@Autowired
-    private ConfigurableBeanFactory beanFactory;
-	
+	private ConfigurableBeanFactory beanFactory;
+
 	private MultiKeyMap<String, Object> scopedBeans;
 
 	@PostConstruct
-    public void initialize() {
-        logger.debug("Initializing solve scope");
-        scopedBeans = new MultiKeyMap<String, Object>();
-        beanFactory.registerScope(
-        		"conversation", this);
-    }
-	
+	public void initialize() {
+		logger.debug("Initializing solve scope");
+		scopedBeans = new MultiKeyMap<String, Object>();
+		beanFactory.registerScope("conversation", this);
+	}
+
 	@Override
 	public synchronized Object get(String name, ObjectFactory<?> objectFactory) {
 		String conversationId = getConversationId();
-        Object result = null;
-        result = scopedBeans.get(conversationId, name);
-        if (null == result) {
-            result = objectFactory.getObject();
-            scopedBeans.put(conversationId, name, result);
-        }
-        return result;
+		Object result = null;
+		result = scopedBeans.get(conversationId, name);
+		if (null == result) {
+			result = objectFactory.getObject();
+			scopedBeans.put(conversationId, name, result);
+		}
+		return result;
 	}
 
 	@Override
@@ -53,7 +53,7 @@ public class ConversationScope implements Scope{
 	@Override
 	public void registerDestructionCallback(String name, Runnable callback) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -61,40 +61,42 @@ public class ConversationScope implements Scope{
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	@Override
 	public String getConversationId() {
 		return ThreadedConversation.get();
 	}
-	
+
 	public void registerConversation(String conversationId) {
 		ThreadedConversation.register(conversationId);
 	}
-	
-	public synchronized void endConversation() {
-		String conversationId = ObjectUtils.defaultIfNull(getConversationId(), "");
-        for (Map.Entry<MultiKey<? extends String>, Object> entry : scopedBeans.entrySet()) {
-            String entryConversationId = entry.getKey().getKey(0);
-            if (conversationId.equals(entryConversationId)) {
-                beanFactory.destroyBean(entry.getKey().getKey(1),
-                        entry.getValue());
-            }
-        }
-        scopedBeans.removeAll(conversationId);
+
+	public synchronized String endConversation() {
+		String conversationId = ObjectUtils.defaultIfNull(getConversationId(),
+				"");
+		for (Map.Entry<MultiKey<? extends String>, Object> entry : scopedBeans
+				.entrySet()) {
+			String entryConversationId = entry.getKey().getKey(0);
+			if (conversationId.equals(entryConversationId)) {
+				beanFactory.destroyBean(entry.getKey().getKey(1),
+						entry.getValue());
+			}
+		}
+		scopedBeans.removeAll(conversationId);
+		return conversationId;
 	}
-	
+
 	private static class ThreadedConversation {
 
-        private static final ThreadLocal<String> conversation =
-            new ThreadLocal<String>();
-        
-        public static void register(String conversationId) {
-        	conversation.set(conversationId);
-        }
+		private static final ThreadLocal<String> conversation = new ThreadLocal<String>();
 
-        public static String get() {
-            return conversation.get();
-        }
-    }
+		public static void register(String conversationId) {
+			conversation.set(conversationId);
+		}
+
+		public static String get() {
+			return conversation.get();
+		}
+	}
 
 }
