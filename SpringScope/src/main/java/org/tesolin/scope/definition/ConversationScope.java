@@ -38,10 +38,14 @@ public class ConversationScope implements Scope {
 		String conversationId = getConversationId();
 		Object result = null;
 		result = scopedBeans.get(conversationId, name);
+		boolean create = false;
 		if (null == result) {
+			create = true;
 			result = objectFactory.getObject();
 			scopedBeans.put(conversationId, name, result);
 		}
+		logger.debug("Getting bean [{}] for conversation [{}] has been created? [{}]", name,
+				conversationId, create);
 		return result;
 	}
 

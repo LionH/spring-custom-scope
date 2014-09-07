@@ -4,6 +4,4 @@ public interface Call {
 
 	public abstract void addWord(String word);
 
-	public abstract String toString();
-
 }

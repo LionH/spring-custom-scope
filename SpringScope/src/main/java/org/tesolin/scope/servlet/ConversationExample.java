@@ -1,6 +1,7 @@
 package org.tesolin.scope.servlet;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.Future;
 import java.util.stream.IntStream;
@@ -43,12 +44,18 @@ public class ConversationExample implements ConversationExampleBase {
 					futures.add(scopedFactory.getMultiThreadedConversation()
 							.execute());
 				});
-		for (Future<?> futureTask : futures) {
-			if (!futureTask.isDone()) {
-				Thread.sleep(200);
-				continue;
+		continued:while(true){
+			for (Future<?> futureTask : futures) {
+				if (!futureTask.isDone()) {
+					Thread.sleep(1000);
+					logger.debug("Waiting for the end of the tasks...");
+					continue continued;
+				}
 			}
+			break continued;
 		}
-		return scopedFactory.getCall();
+		Call ret = scopedFactory.getCall();
+		logger.info("Ending conversation [{}]", ret);
+		return ret;
 	}
 }

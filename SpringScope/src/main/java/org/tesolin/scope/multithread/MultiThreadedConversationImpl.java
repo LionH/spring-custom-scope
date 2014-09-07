@@ -10,9 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Component;
-import org.tesolin.scope.definition.ConversationScope;
 import org.tesolin.scope.scoped.Call;
-import org.tesolin.scope.scoped.ScopedFactory;
 
 @Component
 @Scope("prototype")
@@ -22,33 +20,25 @@ public class MultiThreadedConversationImpl implements MultiThreadedConversation 
 			.getLogger(MultiThreadedConversationImpl.class);
 
 	@Autowired
-	private ScopedFactory factory;
-
-	@Autowired
-	private ConversationScope conversationScope;
-
-	private String conversationId;
+	private Call words;
 
 	@PostConstruct
 	private void initialize() {
-		conversationId = conversationScope.getConversationId();
 		logger.debug(
-				"Initializing MultiThreaded Call conversation:[{}] thread:[{}] obj:[{}]-->",
-				conversationId, Thread.currentThread().getName(),
+				"Initializing MultiThreaded Call thread:[{}] obj:[{}]-->",
+				Thread.currentThread().getName(),
 				this.hashCode());
 	}
 
 	@Override
 	public Future<?> execute() {
-		conversationScope.registerConversation(conversationId);
-		Call words = factory.getCall();
 		words.addWord("Hello");
 		words.addWord(Thread.currentThread().getName());
 		words.addWord("Bye");
 		logger.debug(
-				"<-- Ending MultiThreaded Call conversation:[{}] thread:[{}] obj:[{}]",
-				conversationId, Thread.currentThread().getName(),
+				"<-- Ending MultiThreaded Call thread:[{}] obj:[{}]",
+				Thread.currentThread().getName(),
 				this.hashCode());
-		return new AsyncResult<Call>(words);
+		return new AsyncResult<Void>(null);
 	}
 }
