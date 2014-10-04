@@ -32,11 +32,15 @@ public class MultiThreadedConversationImpl implements MultiThreadedConversation 
 
 	@Override
 	public Future<?> execute() {
-		words.addWord("Hello");
-		words.addWord(Thread.currentThread().getName());
-		words.addWord("Bye");
+		try{
+			words.addWord("Hello");
+			words.addWord(Thread.currentThread().getName());
+			words.addWord("Bye");
+		} catch (InterruptedException e) {
+			logger.error("Something went wrong...",e);
+		}
 		logger.debug(
-				"<-- Ending MultiThreaded Call thread:[{}] obj:[{}]",
+				"<-- Ending MultiThreaded Call thread:[{}] on obj:[{}]",
 				Thread.currentThread().getName(),
 				this.hashCode());
 		return new AsyncResult<Void>(null);

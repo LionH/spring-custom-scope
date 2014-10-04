@@ -1,9 +1,8 @@
 package org.tesolin.scope.servlet;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.annotation.PostConstruct;
@@ -19,6 +18,8 @@ import org.tesolin.scope.scoped.ScopedFactory;
 
 @Component
 public class ConversationExample implements ConversationExampleBase {
+	
+	private static final int CONCURRENT_THREAD = 50;
 
 	private final Logger logger = LoggerFactory
 			.getLogger(ConversationExample.class);
@@ -37,25 +38,16 @@ public class ConversationExample implements ConversationExampleBase {
 	@Override
 	@ConversationTransaction
 	public Call call() throws InterruptedException {
-		logger.info("Main Thread [{}]", Thread.currentThread().getName());
-		Collection<Future<?>> futures = new ArrayList<Future<?>>();
-		IntStream.range(0, 5).forEach(
-				i -> {
-					futures.add(scopedFactory.getMultiThreadedConversation()
-							.execute());
-				});
-		continued:while(true){
-			for (Future<?> futureTask : futures) {
-				if (!futureTask.isDone()) {
-					Thread.sleep(1000);
-					logger.debug("Waiting for the end of the tasks...");
-					continue continued;
-				}
-			}
-			break continued;
+		Collection<Future<?>> futures = IntStream.range(0, CONCURRENT_THREAD).mapToObj(i -> {
+			return scopedFactory.getMultiThreadedConversation()
+					.execute();
+		}).collect(Collectors.toList());
+		while(futures.stream().anyMatch(future -> !future.isDone())){
+			logger.debug("...");
+			Thread.sleep(200);
 		}
 		Call ret = scopedFactory.getCall();
-		logger.info("Ending conversation [{}]", ret);
+		
 		return ret;
 	}
 }

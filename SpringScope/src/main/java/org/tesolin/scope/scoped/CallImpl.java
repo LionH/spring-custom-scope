@@ -2,10 +2,12 @@ package org.tesolin.scope.scoped;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Random;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
@@ -22,7 +24,7 @@ public class CallImpl implements Call {
 	@PostConstruct
 	private void initialize() {
 		logger.info("Initializing scoped communication buffer");
-		blabla = new ArrayList<String>();
+		blabla = CollectionUtils.synchronizedCollection(new ArrayList<String>());
 	}
 
 	/*
@@ -31,8 +33,14 @@ public class CallImpl implements Call {
 	 * @see org.tesolin.scope.scoped.WordsBase#addWord(java.lang.String)
 	 */
 	@Override
-	public void addWord(String word) {
+	public void addWord(String word) throws InterruptedException {
+		Thread.sleep(new Random().longs(0, 5000).findFirst().getAsLong());
 		blabla.add(word);
+		logger.debug(
+				"<-- Adding word [{}] to conversation on thread:[{}] on obj:[{}]",
+				word,
+				Thread.currentThread().getName(),
+				this.hashCode());
 	}
 
 	/*

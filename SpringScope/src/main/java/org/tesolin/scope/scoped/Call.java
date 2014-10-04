@@ -2,6 +2,6 @@ package org.tesolin.scope.scoped;
 
 public interface Call {
 
-	public abstract void addWord(String word);
+	public abstract void addWord(String word) throws InterruptedException;
 
 }
