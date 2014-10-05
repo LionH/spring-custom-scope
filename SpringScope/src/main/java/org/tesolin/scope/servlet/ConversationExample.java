@@ -1,12 +1,17 @@
 package org.tesolin.scope.servlet;
 
 import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
+import org.mapdb.Atomic;
+import org.mapdb.DB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +24,7 @@ import org.tesolin.scope.scoped.ScopedFactory;
 @Component
 public class ConversationExample implements ConversationExampleBase {
 	
-	private static final int CONCURRENT_THREAD = 50;
+	private static final int CONCURRENT_THREAD = 10;
 
 	private final Logger logger = LoggerFactory
 			.getLogger(ConversationExample.class);
@@ -29,10 +34,16 @@ public class ConversationExample implements ConversationExampleBase {
 
 	@Autowired
 	private ScopedFactory scopedFactory;
+	
+	@Autowired
+	private DB mapdb;
 
 	@PostConstruct
 	public void init() {
 		logger.info("Initializing the singleton entrypoint");
+		ConcurrentNavigableMap<Integer,String> map = mapdb.getTreeMap("calls");
+		map.clear();
+		mapdb.commit();
 	}
 
 	@Override
@@ -48,6 +59,27 @@ public class ConversationExample implements ConversationExampleBase {
 		}
 		Call ret = scopedFactory.getCall();
 		
+		// open existing an collection (or create new)
+	    ConcurrentNavigableMap<Integer,String> map = mapdb.getTreeMap("calls");
+	    
+	    Atomic.Integer keyinc = mapdb.getAtomicInteger("call_keyinc");
+	    
+	    map.put(keyinc.incrementAndGet(), ret.toString());
+	    
+	    mapdb.commit();
+		
 		return ret;
+	}
+	
+	@Override
+	public Map<Integer,String> calls() {
+		// open existing an collection (or create new)
+	    ConcurrentNavigableMap<Integer,String> map = mapdb.getTreeMap("calls");
+	    return map;
+	}
+	
+	@PreDestroy
+	public void dispose() {
+		mapdb.close();
 	}
 }

@@ -33,8 +33,7 @@ public class CallImpl implements Call {
 	 * @see org.tesolin.scope.scoped.WordsBase#addWord(java.lang.String)
 	 */
 	@Override
-	public void addWord(String word) throws InterruptedException {
-		Thread.sleep(new Random().longs(0, 5000).findFirst().getAsLong());
+	public void addWord(String word) {
 		blabla.add(word);
 		logger.debug(
 				"<-- Adding word [{}] to conversation on thread:[{}] on obj:[{}]",

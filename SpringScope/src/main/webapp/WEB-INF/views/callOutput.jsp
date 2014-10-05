@@ -5,9 +5,9 @@
 <html>
 	<head>
 		<meta charset="utf-8">
-		<title>Welcome</title>
+		<title>Welcome ${username}</title>
 	</head> 
 	<body>
-		<h2>${message}</h2>
+		<h2>${call}</h2>
 	</body>
 </html>

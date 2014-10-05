@@ -13,11 +13,11 @@ public class ApplicationContext implements WebApplicationInitializer {
 	public void onStartup(ServletContext container) {
 		// Create the 'root' Spring application context
 		AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-		context.setConfigLocation("org.tesolin.scope");
 		context.register(AppConfig.class);
+		context.setServletContext(container);
 		ServletRegistration.Dynamic dispatcher = container.addServlet(
 				"DispatcherServlet", new DispatcherServlet(context));
 		dispatcher.setLoadOnStartup(1);
-		dispatcher.addMapping("/*");
+		dispatcher.addMapping("/");
 	}
 }

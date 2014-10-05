@@ -1,5 +1,6 @@
 package org.tesolin.scope.multithread;
 
+import java.util.Random;
 import java.util.concurrent.Future;
 
 import javax.annotation.PostConstruct;
@@ -33,9 +34,8 @@ public class MultiThreadedConversationImpl implements MultiThreadedConversation 
 	@Override
 	public Future<?> execute() {
 		try{
-			words.addWord("Hello");
-			words.addWord(Thread.currentThread().getName());
-			words.addWord("Bye");
+			Thread.sleep(new Random().longs(0, 2000).findFirst().getAsLong());
+			words.addWord("||Hello " + Thread.currentThread().getName() + ", Bye.||");
 		} catch (InterruptedException e) {
 			logger.error("Something went wrong...",e);
 		}

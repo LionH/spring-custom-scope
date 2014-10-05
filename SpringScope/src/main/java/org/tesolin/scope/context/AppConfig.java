@@ -1,7 +1,11 @@
 package org.tesolin.scope.context;
 
+import java.io.File;
+
 import javax.annotation.PostConstruct;
 
+import org.mapdb.DB;
+import org.mapdb.DBMaker;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -12,6 +16,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.view.JstlView;
+import org.springframework.web.servlet.view.UrlBasedViewResolver;
 
 @EnableWebMvc
 @EnableAspectJAutoProxy
@@ -33,4 +39,21 @@ public class AppConfig {
 		return taskExecutor;
 	}
 
+	@Bean
+	public DB mapdb() {
+		// configure and open database using builder pattern.
+		// all options are available with code auto-completion.
+		DB db = DBMaker.newFileDB(new File("testdb")).closeOnJvmShutdown()
+				.encryptionEnable("password").make();
+		return db;
+	}
+
+	@Bean
+	public UrlBasedViewResolver setupViewResolver() {
+		UrlBasedViewResolver resolver = new UrlBasedViewResolver();
+		resolver.setPrefix("/WEB-INF/views/");
+		resolver.setSuffix(".jsp");
+		resolver.setViewClass(JstlView.class);
+		return resolver;
+	}
 }
