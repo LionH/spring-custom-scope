@@ -12,13 +12,21 @@ public class ScopedFactory {
 	private ObjectFactory<Call> callFactory;
 	
 	@Autowired
+	private Call call;
+	
+	@Autowired
 	private ObjectFactory<MultiThreadedConversation> taskFactory;
 	
+	@Autowired
+	private MultiThreadedConversation task;
+	
 	public Call getCall() {
-		return callFactory.getObject();
+//		return callFactory.getObject();
+		return call;
 	}
 	
 	public MultiThreadedConversation getMultiThreadedConversation() {
-		return taskFactory.getObject();
+//		return taskFactory.getObject();
+		return task;
 	}
 }

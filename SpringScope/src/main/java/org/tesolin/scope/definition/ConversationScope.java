@@ -92,7 +92,7 @@ public class ConversationScope implements Scope {
 
 	private static class ThreadedConversation {
 
-		private static final ThreadLocal<String> conversation = new ThreadLocal<String>();
+		private static final ThreadLocal<String> conversation = new InheritableThreadLocal<String>();
 
 		public static void register(String conversationId) {
 			conversation.set(conversationId);

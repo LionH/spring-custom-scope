@@ -1,7 +1,6 @@
 package org.tesolin.scope.scoped;
 
+@FunctionalInterface
 public interface Call {
-
-	public abstract void addWord(String word);
-
+	void addWord(String word);
 }

@@ -18,12 +18,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.AsyncListenableTaskExecutor;
 import org.springframework.stereotype.Component;
 import org.tesolin.scope.definition.ConversationTransaction;
+import org.tesolin.scope.multithread.MultiThreadedConversation;
 import org.tesolin.scope.scoped.Call;
 import org.tesolin.scope.scoped.ScopedFactory;
 
 @Component
 public class ConversationExample implements ConversationExampleBase {
-	
+
 	private static final int CONCURRENT_THREAD = 10;
 
 	private final Logger logger = LoggerFactory
@@ -33,15 +34,18 @@ public class ConversationExample implements ConversationExampleBase {
 	private AsyncListenableTaskExecutor taskExecutor;
 
 	@Autowired
+	private MultiThreadedConversation task;
+
+	@Autowired
 	private ScopedFactory scopedFactory;
-	
+
 	@Autowired
 	private DB mapdb;
 
 	@PostConstruct
 	public void init() {
 		logger.info("Initializing the singleton entrypoint");
-		ConcurrentNavigableMap<Integer,String> map = mapdb.getTreeMap("calls");
+		ConcurrentNavigableMap<Integer, String> map = mapdb.getTreeMap("calls");
 		map.clear();
 		mapdb.commit();
 	}
@@ -49,35 +53,37 @@ public class ConversationExample implements ConversationExampleBase {
 	@Override
 	@ConversationTransaction
 	public Call call() throws InterruptedException {
-		Collection<Future<?>> futures = IntStream.range(0, CONCURRENT_THREAD).mapToObj(i -> {
-			return scopedFactory.getMultiThreadedConversation()
-					.execute();
-		}).collect(Collectors.toList());
-		while(futures.stream().anyMatch(future -> !future.isDone())){
+		Collection<Future<?>> futures = IntStream
+				.range(0, CONCURRENT_THREAD)
+				.mapToObj(
+						i -> scopedFactory.getMultiThreadedConversation()
+								.execute()
+				).collect(Collectors.toList());
+		while (futures.stream().anyMatch(future -> !future.isDone())) {
 			logger.debug("...");
 			Thread.sleep(200);
 		}
 		Call ret = scopedFactory.getCall();
-		
+
 		// open existing an collection (or create new)
-	    ConcurrentNavigableMap<Integer,String> map = mapdb.getTreeMap("calls");
-	    
-	    Atomic.Integer keyinc = mapdb.getAtomicInteger("call_keyinc");
-	    
-	    map.put(keyinc.incrementAndGet(), ret.toString());
-	    
-	    mapdb.commit();
-		
+		ConcurrentNavigableMap<Integer, String> map = mapdb.getTreeMap("calls");
+
+		Atomic.Integer keyinc = mapdb.getAtomicInteger("call_keyinc");
+
+		map.put(keyinc.incrementAndGet(), ret.toString());
+
+		mapdb.commit();
+
 		return ret;
 	}
-	
+
 	@Override
-	public Map<Integer,String> calls() {
+	public Map<Integer, String> calls() {
 		// open existing an collection (or create new)
-	    ConcurrentNavigableMap<Integer,String> map = mapdb.getTreeMap("calls");
-	    return map;
+		ConcurrentNavigableMap<Integer, String> map = mapdb.getTreeMap("calls");
+		return map;
 	}
-	
+
 	@PreDestroy
 	public void dispose() {
 		mapdb.close();

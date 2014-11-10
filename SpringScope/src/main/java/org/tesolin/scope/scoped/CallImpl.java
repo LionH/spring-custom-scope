@@ -2,7 +2,6 @@ package org.tesolin.scope.scoped;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Random;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -11,9 +10,10 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
 
-@Scope("conversation")
+@Scope(value="conversation", proxyMode=ScopedProxyMode.INTERFACES)
 @Component
 public class CallImpl implements Call {
 
