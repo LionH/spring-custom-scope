@@ -2,6 +2,7 @@ package org.tesolin.scope.multithread;
 
 import java.util.Random;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 
@@ -17,30 +18,30 @@ public class MultiThreadedConversationImpl implements MultiThreadedConversation 
 
 	private Logger logger = LoggerFactory
 			.getLogger(MultiThreadedConversationImpl.class);
-
+	
 	@Autowired
 	private Call words;
 
 	@PostConstruct
 	private void initialize() {
-		logger.debug(
-				"Initializing MultiThreaded Call thread:[{}] obj:[{}]-->",
-				Thread.currentThread().getName(),
-				this.hashCode());
+		logger.debug("Initializing MultiThreaded Call thread:[{}] obj:[{}]-->",
+				Thread.currentThread().getName(), this.hashCode());
 	}
 
 	@Override
 	public Future<?> execute() {
-		try{
-			Thread.sleep(new Random().longs(0, 2000).findFirst().getAsLong());
-			words.addWord("||Hello " + Thread.currentThread().getName() + ", Bye.||");
+		try {
+			TimeUnit.MILLISECONDS.sleep(new Random().longs(0, 2000).findFirst().getAsLong());
 		} catch (InterruptedException e) {
-			logger.error("Something went wrong...",e);
+			logger.error("Something went wrong...", e);
 		}
-		logger.debug(
-				"<-- Ending MultiThreaded Call thread:[{}] on obj:[{}]",
-				Thread.currentThread().getName(),
-				this.hashCode());
+		
+		words.addWord(String.format(
+				"Added word in conversation from thread %s", Thread
+						.currentThread().getName()));
+		
+		logger.debug("<-- Ending MultiThreaded Call thread:[{}] on obj:[{}]",
+				Thread.currentThread().getName(), this.hashCode());
 		return new AsyncResult<Void>(null);
 	}
 }

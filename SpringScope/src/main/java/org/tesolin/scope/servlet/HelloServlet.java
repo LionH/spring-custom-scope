@@ -2,8 +2,6 @@ package org.tesolin.scope.servlet;
 
 import java.io.IOException;
 
-import javax.swing.text.TableView;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -34,7 +32,8 @@ public class HelloServlet {
 			model.addAttribute("call", conversation.call());
 		}
 		
-		return "callOutput";
+		model.addAttribute("tableView", conversation.calls());
+		return "callsOutput";
 	}
 	
 	@RequestMapping(value = "/calls", method = RequestMethod.GET)
