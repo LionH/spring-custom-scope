@@ -20,16 +20,6 @@ public class ConversationScopedAdvice {
 	@Autowired
 	private ConversationScope conversationScope;
 
-	// @Around("execution(public * *(..)) && @annotation(ConversationScoped)")
-	// public Object aroundConversation(MethodInvocation invocation) throws
-	// Throwable {
-	// log.debug("Ending conversation");
-	// // conversationScope.registerConversation();
-	// Object ret = invocation.proceed();
-	// // conversationScope.endConversation();
-	// return ret;
-	// }
-
 	@Before("@annotation(ConversationTransaction)")
 	public void beforeConversation() throws Throwable {
 		String uuid = UUID.randomUUID().toString();

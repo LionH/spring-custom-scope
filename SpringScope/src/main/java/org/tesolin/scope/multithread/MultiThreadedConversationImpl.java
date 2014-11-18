@@ -1,8 +1,12 @@
 package org.tesolin.scope.multithread;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Random;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.annotation.PostConstruct;
 
@@ -18,6 +22,15 @@ public class MultiThreadedConversationImpl implements MultiThreadedConversation 
 
 	private Logger logger = LoggerFactory
 			.getLogger(MultiThreadedConversationImpl.class);
+	
+	private enum WORDS {
+		Hola,
+		que,
+		tal,
+		me,
+		llamo,
+		Lionel;
+	}
 	
 	@Autowired
 	private Call words;
@@ -37,7 +50,10 @@ public class MultiThreadedConversationImpl implements MultiThreadedConversation 
 		}
 		
 		words.addWord(String.format(
-				"Added word in conversation from thread %s", Thread
+				new Random().ints(WORDS.values().length, 0, WORDS.values().length)
+				.mapToObj(
+						i -> WORDS.values()[i]
+				).collect(Collectors.toSet()) + " from thread:[%s]", Thread
 						.currentThread().getName()));
 		
 		logger.debug("<-- Ending MultiThreaded Call thread:[{}] on obj:[{}]",

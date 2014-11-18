@@ -2,6 +2,7 @@ package org.tesolin.scope.servlet;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
@@ -45,7 +46,7 @@ public class ConversationExample implements ConversationExampleBase {
 	@PostConstruct
 	public void init() {
 		logger.info("Initializing the singleton entrypoint");
-		ConcurrentNavigableMap<Integer, String> map = mapdb.getTreeMap("calls");
+		ConcurrentNavigableMap<Integer, Collection<String>> map = mapdb.getTreeMap("calls");
 		map.clear();
 		mapdb.commit();
 	}
@@ -54,7 +55,7 @@ public class ConversationExample implements ConversationExampleBase {
 	@ConversationTransaction
 	public Call call() throws InterruptedException {
 		Collection<Future<?>> futures = IntStream
-				.range(0, CONCURRENT_THREAD)
+				.range(0, new Random().nextInt(CONCURRENT_THREAD))
 				.mapToObj(
 						i -> scopedFactory.getMultiThreadedConversation()
 								.execute()
@@ -66,11 +67,11 @@ public class ConversationExample implements ConversationExampleBase {
 		Call ret = scopedFactory.getCall();
 
 		// open existing an collection (or create new)
-		ConcurrentNavigableMap<Integer, String> map = mapdb.getTreeMap("calls");
+		ConcurrentNavigableMap<Integer, Collection<String>> map = mapdb.getTreeMap("calls");
 
 		Atomic.Integer keyinc = mapdb.getAtomicInteger("call_keyinc");
 
-		map.put(keyinc.incrementAndGet(), ret.toString());
+		map.put(keyinc.incrementAndGet(), ret.words());
 
 		mapdb.commit();
 
@@ -78,9 +79,9 @@ public class ConversationExample implements ConversationExampleBase {
 	}
 
 	@Override
-	public Map<Integer, String> calls() {
+	public Map<Integer, Collection<String>> calls() {
 		// open existing an collection (or create new)
-		ConcurrentNavigableMap<Integer, String> map = mapdb.getTreeMap("calls");
+		ConcurrentNavigableMap<Integer, Collection<String>> map = mapdb.getTreeMap("calls");
 		return map;
 	}
 
