@@ -2,9 +2,11 @@ package org.tesolin.scope.scoped;
 
 import java.util.Collection;
 
+import org.tesolin.scope.beans.Message;
+
 public interface Call {
 	
-	void addWord(String word);
+	void addMessage(String content);
 
-	Collection<String> words();
+	Collection<Message> messages();
 }

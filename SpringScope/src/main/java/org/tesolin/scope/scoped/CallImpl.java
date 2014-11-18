@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
+import org.tesolin.scope.beans.Message;
 import org.tesolin.scope.definition.ConversationScope;
 
 @Scope(value="conversation", proxyMode=ScopedProxyMode.INTERFACES)
@@ -21,7 +22,7 @@ public class CallImpl implements Call {
 
 	private final Logger logger = LoggerFactory.getLogger(CallImpl.class);
 
-	private Collection<String> blabla;
+	private Collection<Message> blabla;
 	
 	@Autowired
 	private ConversationScope scope;
@@ -38,17 +39,21 @@ public class CallImpl implements Call {
 	 * @see org.tesolin.scope.scoped.WordsBase#addWord(java.lang.String)
 	 */
 	@Override
-	public void addWord(String word) {
-		blabla.add(String.format("%s on Conversation [%s]", word, scope.getConversationId()));
+	public void addMessage(String content) {
+		Message message = new Message();
+		message.setContent(content);
+		message.setConversation(scope.getConversationId());
+		message.setSender(Thread.currentThread().getName());
+		
+		blabla.add(message);
+		
 		logger.debug(
-				"<-- Adding word [{}] to conversation [{}] on obj [{}]",
-				word,
-				scope.getConversationId(),
-				this.hashCode());
+				"<-- Adding message [{}]",
+				message);
 	}
 	
 	@Override
-	public Collection<String> words() {
+	public Collection<Message> messages() {
 		return blabla;
 	}
 

@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
-public class HelloServlet {
+public class DispatcherServlet {
 
 	@Autowired
-	private ConversationExampleBase conversation;
+	private Conversation conversation;
 
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	@ResponseBody

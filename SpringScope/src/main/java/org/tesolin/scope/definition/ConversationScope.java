@@ -1,6 +1,9 @@
 package org.tesolin.scope.definition;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -47,6 +50,22 @@ public class ConversationScope implements Scope {
 		logger.debug("Getting bean [{}] for conversation [{}] has been created? [{}]", name,
 				conversationId, create);
 		return result;
+	}
+	
+	public Collection<String> getCurrentConversations() {
+		return scopedBeans.keySet().stream().map(key->key.getKey(0)).collect(Collectors.toSet());
+	}
+	
+	public Collection<String> getCurrentScopedBeanByConversations(String conversationId) {
+		Collection<String> ret = new ArrayList<>();
+		for (Map.Entry<MultiKey<? extends String>, Object> entry : scopedBeans
+				.entrySet()) {
+			String entryConversationId = entry.getKey().getKey(0);
+			if (conversationId.equals(entryConversationId)) {
+				ret.add(entry.getKey().getKey(1));
+			}
+		}
+		return ret;
 	}
 
 	@Override

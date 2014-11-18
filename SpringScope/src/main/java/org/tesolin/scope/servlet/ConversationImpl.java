@@ -1,9 +1,8 @@
 package org.tesolin.scope.servlet;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.ConcurrentNavigableMap;
+import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -18,18 +17,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.AsyncListenableTaskExecutor;
 import org.springframework.stereotype.Component;
+import org.tesolin.scope.beans.Message;
 import org.tesolin.scope.definition.ConversationTransaction;
 import org.tesolin.scope.multithread.MultiThreadedConversation;
 import org.tesolin.scope.scoped.Call;
 import org.tesolin.scope.scoped.ScopedFactory;
 
 @Component
-public class ConversationExample implements ConversationExampleBase {
+public class ConversationImpl implements Conversation {
 
 	private static final int CONCURRENT_THREAD = 10;
 
 	private final Logger logger = LoggerFactory
-			.getLogger(ConversationExample.class);
+			.getLogger(ConversationImpl.class);
 
 	@Autowired
 	private AsyncListenableTaskExecutor taskExecutor;
@@ -46,8 +46,7 @@ public class ConversationExample implements ConversationExampleBase {
 	@PostConstruct
 	public void init() {
 		logger.info("Initializing the singleton entrypoint");
-		ConcurrentNavigableMap<Integer, Collection<String>> map = mapdb.getTreeMap("calls");
-		map.clear();
+		mapdb.delete("listOfMessage");
 		mapdb.commit();
 	}
 
@@ -67,11 +66,13 @@ public class ConversationExample implements ConversationExampleBase {
 		Call ret = scopedFactory.getCall();
 
 		// open existing an collection (or create new)
-		ConcurrentNavigableMap<Integer, Collection<String>> map = mapdb.getTreeMap("calls");
+		Set<Message> set = mapdb.getTreeSet("listOfMessage");
 
-		Atomic.Integer keyinc = mapdb.getAtomicInteger("call_keyinc");
-
-		map.put(keyinc.incrementAndGet(), ret.words());
+		ret.messages().forEach(item ->{
+			Atomic.Integer keyinc = mapdb.getAtomicInteger("call_keyinc");
+			item.setId(keyinc.incrementAndGet());
+			set.add(item);
+		});
 
 		mapdb.commit();
 
@@ -79,10 +80,10 @@ public class ConversationExample implements ConversationExampleBase {
 	}
 
 	@Override
-	public Map<Integer, Collection<String>> calls() {
+	public Set<Message> calls() {
 		// open existing an collection (or create new)
-		ConcurrentNavigableMap<Integer, Collection<String>> map = mapdb.getTreeMap("calls");
-		return map;
+		Set<Message> set = mapdb.getTreeSet("listOfMessage");
+		return set;
 	}
 
 	@PreDestroy

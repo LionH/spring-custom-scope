@@ -1,12 +1,9 @@
 package org.tesolin.scope.multithread;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Random;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import javax.annotation.PostConstruct;
 
@@ -49,7 +46,7 @@ public class MultiThreadedConversationImpl implements MultiThreadedConversation 
 			logger.error("Something went wrong...", e);
 		}
 		
-		words.addWord(String.format(
+		words.addMessage(String.format(
 				new Random().ints(WORDS.values().length, 0, WORDS.values().length)
 				.mapToObj(
 						i -> WORDS.values()[i]

@@ -1,14 +1,14 @@
 package org.tesolin.scope.servlet;
 
 import java.util.Collection;
-import java.util.Map;
 
+import org.tesolin.scope.beans.Message;
 import org.tesolin.scope.scoped.Call;
 
-public interface ConversationExampleBase {
+public interface Conversation {
 
 	Call call() throws InterruptedException;
 
-	Map<Integer, Collection<String>> calls();
+	Collection<Message> calls();
 
 }
