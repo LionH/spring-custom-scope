@@ -32,8 +32,6 @@
 	var reqCount=0;
 	var conversations=[];
 	
-	window.setInterval(jmxRequest, 500);
-
 	function jmxRequest() {
 
 		// Create a new jolokia client accessing the agent on the same
@@ -100,10 +98,23 @@
 		grid = new Slick.Grid("#myGrid", data, columns, options);
 		grid.autosizeColumns();
 	})
-
-	function getTableData() {
+	
+	function call() {
 		reqCount++;
 		
+		// Assign handlers immediately after making the request,
+		// and remember the jqXHR object for this request
+		var jqxhr = $.ajax("restCall").done(function(result) {
+			console.log("call success");
+		}).fail(function() {
+			console.log("call failed");
+		}).always(function() {
+			reqCount--;
+		});
+	}
+
+	function getTableData() {
+		console.log("refreshing table data with incoming calls");
 		// Assign handlers immediately after making the request,
 		// and remember the jqXHR object for this request
 		var jqxhr = $.ajax("restCalls").done(function(result) {
@@ -111,11 +122,10 @@
 			tableView = result;
 			grid.setData(tableView, false);
 			grid.render();
+			grid.scrollRowToTop(tableView.length);
 		}).fail(function() {
 			console.log("getTableData failed");
 		}).always(function() {
-			grid.scrollRowToTop(tableView.length);
-			reqCount--;
 			console.log("getTableData complete");
 		});
 	}
@@ -126,6 +136,13 @@
 		console.log(newValue);
 		$("#progressBar").attr("aria\-valuenow", 100);
 		$("#progressBar").css("width", newValue);
+	}
+	
+	window.setInterval(dataRequest, 500);
+	
+	function dataRequest() {
+		jmxRequest();
+		getTableData();
 	}
 </script>
 <style type="text/css">
@@ -147,7 +164,7 @@ body {
 			</div>
 			<div class="navbar-header col-lg-11">
 				<ul class="nav navbar-nav col-lg-12">
-					<li><a class="navbar-brand" href="#" onclick="getTableData()">Perform
+					<li><a class="navbar-brand" href="#" onclick="call()">Perform
 							a new scoped call</a></li>
 				</ul>
 			</div>

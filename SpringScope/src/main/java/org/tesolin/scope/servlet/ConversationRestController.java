@@ -14,8 +14,12 @@ public class ConversationRestController {
 	private Conversation conversation;
 	
 	@RequestMapping(value="/restCalls",produces = "application/json")
-    public Collection<Message> calls() throws InterruptedException {
-		conversation.call();
+    public Collection<Message> calls(){
         return conversation.calls();
     }
+	
+	@RequestMapping(value="/restCall", produces= "application/json")
+	public void call() throws InterruptedException {
+		conversation.call();
+	}
 }

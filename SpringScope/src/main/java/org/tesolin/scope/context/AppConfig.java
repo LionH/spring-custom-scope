@@ -1,20 +1,20 @@
 package org.tesolin.scope.context;
 
-import java.io.File;
-
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.EnableMBeanExport;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.task.AsyncListenableTaskExecutor;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -28,6 +28,8 @@ import org.springframework.web.servlet.view.UrlBasedViewResolver;
 @Configuration
 @EnableMBeanExport
 @ComponentScan({ "org.tesolin.scope.*" })
+@PropertySource("classpath:test.properties")
+@EnableConfigurationProperties
 public class AppConfig {
 	
 	private final Logger logger = LoggerFactory
@@ -63,4 +65,9 @@ public class AppConfig {
 		resolver.setViewClass(JstlView.class);
 		return resolver;
 	}
+	
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+       return new PropertySourcesPlaceholderConfigurer();
+    }
 }

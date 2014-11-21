@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
-public class DispatcherServlet {
+public class DispatcherServlet{
 
 	@Autowired
 	private Conversation conversation;
-
+	
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	@ResponseBody
 	public String showIndex() {
