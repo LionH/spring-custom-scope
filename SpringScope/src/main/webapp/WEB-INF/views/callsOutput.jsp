@@ -25,6 +25,7 @@
 <script type="text/javascript" src="js/slick.grid.js"></script>
 <script type="text/javascript" src="js/bootstrap-slickgrid.js"></script>
 <script type="text/javascript" src="js/json2.js"></script>
+<script type="text/javascript" src="js/sockjs.min.js"></script>
 <script type="text/javascript" src="js/jolokia.js"></script>
 <script type="text/javascript" src="js/jolokia-simple.js"></script>
 <script type="text/javascript">
@@ -58,7 +59,8 @@
 			attribute : "MonitorConversations"
 		}, {
 			success : function(response) {
-				conversations=JSON.stringify(response.value);
+				conversations=response.value;
+				//conversations=response.value;
 				refreshProgressBar();
 			}
 		});
@@ -118,7 +120,6 @@
 		// Assign handlers immediately after making the request,
 		// and remember the jqXHR object for this request
 		var jqxhr = $.ajax("restCalls").done(function(result) {
-			console.log("getTableData success");
 			tableView = result;
 			grid.setData(tableView, false);
 			grid.render();
@@ -131,19 +132,47 @@
 	}
 	
 	function refreshProgressBar() {
-		console.log("refreshing Progress Bar with conversations: " + conversations.length + ", reqCount: " +  reqCount);
-		var newValue = (100*(reqCount/conversations.length));
-		console.log(newValue);
-		$("#progressBar").attr("aria\-valuenow", 100);
-		$("#progressBar").css("width", newValue);
+		//var newValue = (reqCount/(conversations.length+1));
+		var newValue = conversations.length;
+		$("#progressBarValue").html(newValue);
+		$("#progressBar").width(newValue * 10 + "%");
+		$("#progressBar").attr("aria-valuenow", newValue);
+		$("#progressBar").html(newValue + "%");
 	}
 	
-	window.setInterval(dataRequest, 500);
+	window.setInterval(dataRequest, 300);
+	
+	var mouseDown = false;
 	
 	function dataRequest() {
 		jmxRequest();
-		getTableData();
+		if (conversations.length>0) {
+			getTableData();
+		}
+		if (mouseDown) {
+			call();
+		}
 	}
+	
+	var socket = new SockJS('/SpringScope/wsCalls');
+	var client = Stomp.over(socket);
+
+	client.connect('user', 'password', function(frame) {
+
+	  client.subscribe("/data", function(message) {
+	    console.log(message);
+	  });
+
+	});
+	
+	function mouseDownHandler() {
+		mouseDown=true;
+	}
+	
+	function mouseUpHandler() {
+		mouseDown=false;
+	}
+	
 </script>
 <style type="text/css">
 body {
@@ -164,7 +193,7 @@ body {
 			</div>
 			<div class="navbar-header col-lg-11">
 				<ul class="nav navbar-nav col-lg-12">
-					<li><a class="navbar-brand" href="#" onclick="call()">Perform
+					<li><a class="navbar-brand" href="#" onmousedown="mouseDownHandler()" onmouseup="mouseUpHandler()">Perform
 							a new scoped call</a></li>
 				</ul>
 			</div>
@@ -182,18 +211,19 @@ body {
 			</div>
 			<div class="progress">
 				<div class="progress-bar progress-bar-success" role="progressbar"
-					aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-					style="width: 0%">
-					<span class="sr-only">40% Complete (success)</span>
+					aria-valuenow="0" aria-valuemin="0" aria-valuemax="10"
+					style="width: 100%">
+					<span class="sr-only">100% Complete (success)</span>
 				</div>
 			</div>
 			<div class="progress">
-				<div id="progressBar" class="progress-bar progress-bar-success" role="progressbar"
-					aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-					style="width: 0%">
-					<span class="sr-only">40% Complete (success)</span>
+				<div id="progressBar" class="progress-bar progress-bar-striped active" role="progressbar"
+					aria-valuenow="0" aria-valuemin="0" aria-valuemax="10"
+					style="width: 100%">
+					10%
 				</div>
 			</div>
+			<div id="progressBarValue" class="label"/>
 		</div>
 	</nav>
 	<div class="container-fluid">

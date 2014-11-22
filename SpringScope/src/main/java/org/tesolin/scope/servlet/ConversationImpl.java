@@ -15,14 +15,12 @@ import org.mapdb.DB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.task.AsyncListenableTaskExecutor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.tesolin.scope.beans.Message;
 import org.tesolin.scope.definition.ConversationTransaction;
 import org.tesolin.scope.multithread.MultiThreadedConversation;
 import org.tesolin.scope.scoped.Call;
-import org.tesolin.scope.scoped.ScopedFactory;
 
 @Component
 public class ConversationImpl implements Conversation {
@@ -33,16 +31,16 @@ public class ConversationImpl implements Conversation {
 			.getLogger(ConversationImpl.class);
 
 	@Autowired
-	private AsyncListenableTaskExecutor taskExecutor;
-
-	@Autowired
 	private MultiThreadedConversation task;
 
 	@Autowired
-	private ScopedFactory scopedFactory;
-
-	@Autowired
 	private DB mapdb;
+	
+	@Autowired
+	private MultiThreadedConversation multiThreadedConversation;
+	
+	@Autowired
+	private Call call;
 
 	@PostConstruct
 	public void init() {
@@ -54,31 +52,28 @@ public class ConversationImpl implements Conversation {
 	@Async
 	@Override
 	@ConversationTransaction
-	public Call call() throws InterruptedException {
+	public void call() throws InterruptedException {
 		Collection<Future<?>> futures = IntStream
 				.range(0, new Random().nextInt(CONCURRENT_THREAD))
 				.mapToObj(
-						i -> scopedFactory.getMultiThreadedConversation()
+						i -> multiThreadedConversation
 								.execute()
 				).collect(Collectors.toList());
 		while (futures.stream().anyMatch(future -> !future.isDone())) {
 			logger.debug("...");
-			Thread.sleep(200);
+			Thread.sleep(20);
 		}
-		Call ret = scopedFactory.getCall();
 
 		// open existing an collection (or create new)
 		Set<Message> set = mapdb.getTreeSet("listOfMessage");
 
-		ret.messages().forEach(item ->{
+		call.messages().forEach(item ->{
 			Atomic.Integer keyinc = mapdb.getAtomicInteger("call_keyinc");
 			item.setId(keyinc.incrementAndGet());
 			set.add(item);
 		});
 
 		mapdb.commit();
-
-		return ret;
 	}
 
 	@Override

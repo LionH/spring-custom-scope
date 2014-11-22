@@ -41,7 +41,7 @@ public class MultiThreadedConversationImpl implements MultiThreadedConversation 
 	@Override
 	public Future<?> execute() {
 		try {
-			TimeUnit.MILLISECONDS.sleep(new Random().longs(0, 2000).findFirst().getAsLong());
+			TimeUnit.MILLISECONDS.sleep(new Random().longs(0, 5000).findFirst().getAsLong());
 		} catch (InterruptedException e) {
 			logger.error("Something went wrong...", e);
 		}

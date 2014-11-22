@@ -17,7 +17,7 @@ import org.tesolin.scope.definition.ConversationScope;
         description="Conversation Scope monitoring",
         log=true,
         logFile="jmx.log",
-        currencyTimeLimit=15,
+        currencyTimeLimit=1,
         persistPolicy="OnUpdate",
         persistPeriod=200,
         persistLocation="foo",
@@ -26,7 +26,7 @@ public class AppMonitoring {
 	@Autowired
 	private ConversationScope conversationScope;
 	
-	@ManagedAttribute(description="Monitored conversations", currencyTimeLimit=-1)
+	@ManagedAttribute(description="Monitored conversations", currencyTimeLimit=1)
 	public Collection<String> getMonitorConversations() {
 		return conversationScope.getCurrentConversations();
 	}

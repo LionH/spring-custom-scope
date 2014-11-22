@@ -18,6 +18,7 @@ public class ApplicationContext implements WebApplicationInitializer {
 		ServletRegistration.Dynamic dispatcher = container.addServlet(
 				"DispatcherServlet", new DispatcherServlet(context));
 		dispatcher.setLoadOnStartup(1);
+		dispatcher.setAsyncSupported(true);
 		dispatcher.addMapping("/");
 	}
 }

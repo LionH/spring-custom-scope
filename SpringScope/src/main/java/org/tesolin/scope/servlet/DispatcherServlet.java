@@ -29,7 +29,6 @@ public class DispatcherServlet{
 
 		if (StringUtils.isNotBlank(username)) {
 			model.addAttribute("username", username);
-			model.addAttribute("call", conversation.call());
 		}
 		
 		model.addAttribute("tableView", conversation.calls());
