@@ -50,8 +50,7 @@ public class MultiThreadedConversationImpl implements MultiThreadedConversation 
 				new Random().ints(WORDS.values().length, 0, WORDS.values().length)
 				.mapToObj(
 						i -> WORDS.values()[i]
-				).collect(Collectors.toSet()) + " from thread:[%s]", Thread
-						.currentThread().getName()));
+				).collect(Collectors.toSet()).toString()));
 		
 		logger.debug("<-- Ending MultiThreaded Call thread:[{}] on obj:[{}]",
 				Thread.currentThread().getName(), this.hashCode());

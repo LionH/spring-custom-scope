@@ -40,6 +40,7 @@ public class CallImpl implements Call {
 	 */
 	@Override
 	public void addMessage(String content) {
+		logger.warn("stack", new RuntimeException());
 		Message message = new Message();
 		message.setContent(content);
 		message.setConversation(scope.getConversationId());
